@@ -65,7 +65,7 @@ class dr_dump_action_ft(dr_obj):
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
-        return "FT devx id %s, dest_ft %s" % (
+        return "Jump FlowTable devx index %s, dest_ft %s" % (
             _srd(self.data, "table_devx_id"),
             _srd(self.data, "dest_ft"))
 
@@ -99,7 +99,7 @@ class dr_dump_action_ctr(dr_obj):
     def dump_str(self):
         if ( (_srd(self.data, "rule_id")) in self.dump_ctx.counter.keys()):
            out_str = self.dump_ctx.counter[(_srd(self.data, "rule_id"))]
-        return "CTR(%s), index %s" % (out_str, _srd(self.data, "ctr_index"))
+        return "counter(%s), index %s" % (out_str, _srd(self.data, "ctr_index"))
 
 
 class dr_dump_action_tag(dr_obj):
@@ -135,7 +135,7 @@ class dr_dump_action_vport(dr_obj):
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
-        return "VPORT, num %s" % (_srd(self.data, "vport_num"))
+        return "output(%s)" % ("pf" if _srd(self.data, "vport_num") == "0xffff" else _srd(self.data, "vport_num"))
 
 
 class dr_dump_action_decap_l2(dr_obj):
@@ -144,7 +144,7 @@ class dr_dump_action_decap_l2(dr_obj):
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
-        return "DECAP_L2 "
+        return "DECAP "
 
 
 class dr_dump_action_decap_l3(dr_obj):
@@ -169,7 +169,7 @@ class dr_dump_action_encap_l2(dr_obj):
            out_str = self.dump_ctx.encap_decap[(_srd(self.data, "rule_id"))]
         else:
            out_str = "parse vxlan en/decap error!"
-        return "ENCAP_L2(%s), devx obj id %s" % (out_str, _srd(self.data, "devx_obj_id"))
+        return "ENCAP(%s), devx obj id %s" % (out_str, _srd(self.data, "devx_obj_id"))
 
 
 class dr_dump_action_encap_l3(dr_obj):
