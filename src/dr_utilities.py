@@ -279,6 +279,8 @@ def mlx5_ifc_encap_decap(bin_str):
     VXLAN_HDR_LEN = 16
     length = 0
     ret = {}
+    if not bin_str:
+        return
 
     ret["dmac"] = pretty_mac('0x'+bin_str[0: 12])
     ret["smac"] = pretty_mac('0x'+bin_str[12: 24])

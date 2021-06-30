@@ -97,8 +97,16 @@ class dr_dump_action_ctr(dr_obj):
         self.dump_ctx = dump_ctx
 
     def dump_str(self):
-        if ( (_srd(self.data, "rule_id")) in self.dump_ctx.counter.keys()):
-           out_str = self.dump_ctx.counter[(_srd(self.data, "rule_id"))]
+        _str = _srd(self.data, "rule_id")
+        if len(_str) >= 9 :
+            str = _str[0:2] + _str[len(_str)-7:len(_str)]
+        else:
+            str =_str
+
+        if ( str in self.dump_ctx.counter.keys()):
+           out_str = self.dump_ctx.counter[str]
+        else:
+           return "CTR, index %s" % (_srd(self.data, "ctr_index"))
         return "CTR(%s), index %s" % (out_str, _srd(self.data, "ctr_index"))
 
 
@@ -120,12 +128,17 @@ class dr_dump_action_modify_header(dr_obj):
         self.dump_ctx = dump_ctx
 
     def dump_str(self):
-        if self.data["single_action_opt"]:
+        _str = _srd(self.data, "rule_id")
+        if len(_str) >= 9 :
+            str = _str[0:2] + _str[len(_str)-7:len(_str)]
+        else:
+            str =_str
+        if ( str in self.dump_ctx.modify_hdr.keys()):
+            out_str = self.dump_ctx.modify_hdr[str].lstrip(',')
+            return "MODIFY_HDR(hdr(%s)), rewrite index %s" % (out_str, (_srd(self.data, "rewrite_index")))
+        elif self.data["single_action_opt"]:
             if int(self.data["single_action_opt"], 16) == 1:
                 return "MODIFY_HDR, single modify action optimized"
-        if ( (_srd(self.data, "rule_id")) in self.dump_ctx.modify_hdr.keys()):
-            out_str = self.dump_ctx.modify_hdr[(_srd(self.data, "rule_id"))].lstrip(',')
-            return "MODIFY_HDR(hdr(%s)), rewrite index %s" % (out_str, (_srd(self.data, "rewrite_index")))
         else:
             return "MODIFY_HDR, rewrite index %s" % (_srd(self.data, "rewrite_index"))
 
@@ -165,8 +178,13 @@ class dr_dump_action_encap_l2(dr_obj):
         self.dump_ctx = dump_ctx
 
     def dump_str(self):
-        if ( (_srd(self.data, "rule_id")) in self.dump_ctx.encap_decap.keys()):
-           out_str = self.dump_ctx.encap_decap[(_srd(self.data, "rule_id"))]
+        _str = _srd(self.data, "rule_id")
+        if len(_str) >= 9 :
+            str = _str[0:2] + _str[len(_str)-7:len(_str)]
+        else:
+            str =_str
+        if ( str in self.dump_ctx.encap_decap.keys()):
+           out_str = self.dump_ctx.encap_decap[str]
         else:
            out_str = "parse vxlan en/decap error!"
         return "ENCAP_L2(%s), devx obj id %s" % (out_str, _srd(self.data, "devx_obj_id"))
@@ -181,8 +199,13 @@ class dr_dump_action_encap_l3(dr_obj):
         self.dump_ctx = dump_ctx
 
     def dump_str(self):
-        if ( (_srd(self.data, "rule_id")) in self.dump_ctx.encap_decap.keys()):
-            out_str = self.dump_ctx.encap_decap[(_srd(self.data, "rule_id"))]
+        _str = _srd(self.data, "rule_id")
+        if len(_str) >= 9 :
+            str = _str[0:2] + _str[len(_str)-7:len(_str)]
+        else:
+            str =_str
+        if ( str in self.dump_ctx.encap_decap.keys()):
+            out_str = self.dump_ctx.encap_decap[str]
         else:
             out_str = "parse vxlan en/decap error!"
         return "ENCAP_L3(%s), devx obj id %s" % (out_str, _srd(self.data, "devx_obj_id"))
