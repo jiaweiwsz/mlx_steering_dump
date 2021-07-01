@@ -106,8 +106,8 @@ class dr_dump_action_ctr(dr_obj):
         if ( str in self.dump_ctx.counter.keys()):
            out_str = self.dump_ctx.counter[str]
         else:
-           return "CTR, index %s" % (_srd(self.data, "ctr_index"))
-        return "CTR(%s), index %s" % (out_str, _srd(self.data, "ctr_index"))
+           return "counter, index %s" % (_srd(self.data, "ctr_index"))
+        return "counter(%s), index %s" % (out_str, _srd(self.data, "ctr_index"))
 
 
 class dr_dump_action_tag(dr_obj):
@@ -148,7 +148,17 @@ class dr_dump_action_vport(dr_obj):
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
-        return "VPORT, num %s" % (_srd(self.data, "vport_num"))
+        vport = int(_srd(self.data, "vport_num"), 16)
+        #return "VPORT, num %s" % (_srd(self.data, "vport_num"))
+        if vport == 0xffff:
+            output = "pf"
+        elif vport == 0xfffe:
+            output = "ecpf"
+        elif vport >= 0x8000:
+            output = ("sf%s" % (vport - 0x8000))
+        else:
+            output = ("vf%s" % vport)
+        return "output(%s)" % output
 
 
 class dr_dump_action_decap_l2(dr_obj):
@@ -157,7 +167,7 @@ class dr_dump_action_decap_l2(dr_obj):
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
-        return "DECAP_L2 "
+        return "DECAP"
 
 
 class dr_dump_action_decap_l3(dr_obj):
@@ -187,7 +197,7 @@ class dr_dump_action_encap_l2(dr_obj):
            out_str = self.dump_ctx.encap_decap[str]
         else:
            out_str = "parse vxlan en/decap error!"
-        return "ENCAP_L2(%s), devx obj id %s" % (out_str, _srd(self.data, "devx_obj_id"))
+        return "ENCAP(%s), devx obj id %s" % (out_str, _srd(self.data, "devx_obj_id"))
 
 
 class dr_dump_action_encap_l3(dr_obj):
