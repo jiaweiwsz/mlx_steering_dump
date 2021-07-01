@@ -282,19 +282,36 @@ def mlx5_ifc_encap_decap(bin_str):
     if not bin_str:
         return
 
+    _len = len(bin_str)
+    if _len >= 108:
+        #mac + vlan + ip
+        has_vlan = True
+    else:
+        #mac + ip
+        has_vlan = False
+
     ret["dmac"] = pretty_mac('0x'+bin_str[0: 12])
     ret["smac"] = pretty_mac('0x'+bin_str[12: 24])
-    ret["vid"] = int(bin_str[28: 32], 16) & 0xfff
+    if has_vlan:
+        ret["vid"] = int(bin_str[28: 32], 16) & 0xfff
+        ret["ethtype"] = (bin_str[32: 36])  # 0x0800; ipv4, 0x86DD, ipv6
+    else:
+        ret["ethtype"] = (bin_str[24: 28])  # 0x0800; ipv4, 0x86DD, ipv6
 
-    ret["ethtype"] = (bin_str[32: 36])  # 0x0800; ipv4, 0x86DD, ipv6
-    length += (ETH_HDR_LEN + VLAN_HDR_LEN)
+    if has_vlan:
+        length += (ETH_HDR_LEN + VLAN_HDR_LEN)
+        off = 0
+    else:
+        length += ETH_HDR_LEN
+        off = VLAN_HDR_LEN
+
     if ret["ethtype"] == '0800':
         ret["ip_type"] = int (bin_str[length + IPV4_HDR_LEN - 22 : length + IPV4_HDR_LEN - 20], 16)  # udp/ip
-        ret["src_ip"] = pretty_ip('0x' + bin_str[length + IPV4_HDR_LEN - 16 : length + IPV4_HDR_LEN - 8])
-        ret["dst_ip"] = pretty_ip('0x' + bin_str[length + IPV4_HDR_LEN - 8 : length + IPV4_HDR_LEN])
+        ret["src_ip"] = pretty_ip(bin_str[length + IPV4_HDR_LEN - 16 : length + IPV4_HDR_LEN - 8])
+        ret["dst_ip"] = pretty_ip(bin_str[length + IPV4_HDR_LEN - 8  : length + IPV4_HDR_LEN])
         length += IPV4_HDR_LEN
     else :
-        ret["ip_type"] = (bin_str[length + IPV6_HDR_LEN - 68 : length + IPV6_HDR_LEN - 66])  # udp/ip
+        ret["ip_type"] = (bin_str[length + IPV6_HDR_LEN - 68 + off: length + IPV6_HDR_LEN - 66 + off])  # udp/ip
         ret["src_ip"] = pretty_ip('0x' + bin_str[length + IPV6_HDR_LEN - 64 : length + IPV6_HDR_LEN - 32])
         ret["dst_ip"] = pretty_ip('0x' + bin_str[length + IPV6_HDR_LEN - 32 : length + IPV6_HDR_LEN])
         length += IPV6_HDR_LEN
@@ -303,11 +320,14 @@ def mlx5_ifc_encap_decap(bin_str):
     length += UDP_HDR_LEN
     ret["flag"] = (bin_str[length + VXLAN_HDR_LEN - 16 : length + VXLAN_HDR_LEN - 8])
     ret["vni"] = int(bin_str[length + VXLAN_HDR_LEN - 8 : length + VXLAN_HDR_LEN-2], 16)
-   
-    str = "vxlan en/decap tnl_push(dmac=%s, smac=%s, vid=%s, sip=%s, dip=%s, port=%s, vni=%s)" % \
+    if has_vlan:
+        str = "vxlan en/decap tnl_push(dmac=%s, smac=%s, vid=%s, sip=%s, dip=%s, port=%s, vni=%s)" % \
                            (ret["dmac"], ret["smac"], ret["vid"], ret["src_ip"], ret["dst_ip"],
                            ret["udp_port"], ret["vni"])
-
+    else:
+        str = "vxlan en/decap tnl_push(dmac=%s, smac=%s, vlan null, sip=%s, dip=%s, port=%s, vni=%s)" % \
+                           (ret["dmac"], ret["smac"], ret["src_ip"], ret["dst_ip"],
+                           ret["udp_port"], ret["vni"])
     return str
 
 def int_repl(match):
