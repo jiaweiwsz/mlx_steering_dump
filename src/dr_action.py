@@ -65,7 +65,7 @@ class dr_dump_action_ft(dr_obj):
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
-        return "FT devx id %s, dest_ft %s" % (
+        return "FlowTable index %s, dest_ft %s" % (
             _srd(self.data, "table_devx_id"),
             _srd(self.data, "dest_ft"))
 
@@ -199,7 +199,7 @@ class dr_dump_action_encap_l2(dr_obj):
            out_str = "parse vxlan en/decap error!"
            self.dump_ctx.invalid_rule.append(str)
            return ""
-        return "ENCAP(%s), devx obj id %s" % (out_str, _srd(self.data, "devx_obj_id"))
+        return "ENCAP(%s), index %s" % (out_str, _srd(self.data, "devx_obj_id"))
 
 
 class dr_dump_action_encap_l3(dr_obj):
@@ -220,7 +220,7 @@ class dr_dump_action_encap_l3(dr_obj):
             out_str = self.dump_ctx.encap_decap[str]
         else:
             out_str = "parse vxlan en/decap error!"
-        return "ENCAP_L3(%s), devx obj id %s" % (out_str, _srd(self.data, "devx_obj_id"))
+        return "ENCAP_L3(%s), index %s" % (out_str, _srd(self.data, "devx_obj_id"))
 
 class dr_dump_action_pop_vlan(dr_obj):
     def __init__(self, data):
@@ -246,7 +246,7 @@ class dr_dump_action_meter(dr_obj):
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
-        return "METER, next flow table %s, devx obj id %s, rx_icm_addr %s rx_icm_addr %s" % (
+        return "METER, next flow table %s, index %s, rx_icm_addr %s rx_icm_addr %s" % (
             _srd(self.data, "next_ft"),
             _srd(self.data, "devx_id"),
             _srd(self.data, "rx_icm_addr"),
@@ -260,7 +260,7 @@ class dr_dump_action_sampler(dr_obj):
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
-        return "SAMPLER, next flow table %s, sample table devx obj id %s, sampler devx obj id %s, rx_icm_addr %s " \
+        return "SAMPLER, next flow table %s, sample table index %s, sampler index %s, rx_icm_addr %s " \
                "rx_icm_addr %s" % (
             _srd(self.data, "next_ft"),
             _srd(self.data, "sample_tbl_devx_id"),
@@ -275,7 +275,7 @@ class dr_dump_action_dest_array(dr_obj):
         self.data = dict(zip(keys, data + [None] * (len(keys) - len(data))))
 
     def dump_str(self):
-        return "DEST_ARRAY, devx obj id %s, rx_icm_addr %s rx_icm_addr %s" % (
+        return "DEST_ARRAY, index %s, rx_icm_addr %s rx_icm_addr %s" % (
             _srd(self.data, "devx_id"),
             _srd(self.data, "rx_icm_addr"),
             _srd(self.data, "tx_icm_addr"))
