@@ -73,6 +73,8 @@ class dr_dump_rule(dr_obj):
 
         for i in range(0, len(self.rule_action_list)):
             action = self.rule_action_list[i]
+            if ( not len(action.dump_str())):
+                return ""
             action_str += action.dump_str()
             if i != (len(self.rule_action_list) - 1):
                 action_str += delem
@@ -80,6 +82,8 @@ class dr_dump_rule(dr_obj):
         return action_str + "\n"
 
     def print_tree_view(self, dump_ctx, verbose, raw):
+        if (not len(self.dump_actions_str(verbose))):
+            return
         print_dr(dr_print_color.RULE, self.dump_str())
         inc_indent()
         print_dr(dr_print_color.RULE_MATCH, self.dump_match_str(verbose, raw))
@@ -95,6 +99,8 @@ class dr_dump_rule(dr_obj):
             print_dr(dr_print_color.DOMAIN, dmn_str)
             print_dr(dr_print_color.TABLE, tbl_str)
             print_dr(dr_print_color.MATCHER, matcher_str)
+        if (not len(self.dump_actions_str(verbose))):
+            return
         print_dr(dr_print_color.RULE, self.dump_str())
 
         inc_indent()

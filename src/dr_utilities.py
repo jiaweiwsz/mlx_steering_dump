@@ -151,6 +151,8 @@ class dr_dump_ctx(object):
     table = None
     matcher = None
     rule = None
+    line = []
+    invalid_rule = []
     counter = {}
     encap_decap = {}
     modify_hdr = {}

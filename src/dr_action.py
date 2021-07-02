@@ -197,6 +197,8 @@ class dr_dump_action_encap_l2(dr_obj):
            out_str = self.dump_ctx.encap_decap[str]
         else:
            out_str = "parse vxlan en/decap error!"
+           self.dump_ctx.invalid_rule.append(str)
+           return ""
         return "ENCAP(%s), devx obj id %s" % (out_str, _srd(self.data, "devx_obj_id"))
 
 

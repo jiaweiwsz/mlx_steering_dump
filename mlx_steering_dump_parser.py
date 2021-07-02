@@ -109,7 +109,8 @@ def dr_report_unsupported_object(dump_ctx, line):
     elif dr_rec_type_is_action(dr_rec_type):
         if dump_ctx.rule:
             action = dr_dump_action_unsupported(line)
-            dump_ctx.rule.add_action(action)
+            if dump_ctx.rule:
+                dump_ctx.rule.add_action(action)
         else:
             print("Err: Unsupported domain related object: ", rec_type)
     else:
@@ -184,11 +185,13 @@ def parse_domain(csv_reader, domain_obj=None):
 
             dr_obj.data["definer_id"] = \
                 dump_ctx.matcher.builders[-1].data["definer_id"]
-            dump_ctx.rule.add_rule_entry(dr_obj)
+            if dump_ctx.rule:
+                dump_ctx.rule.add_rule_entry(dr_obj)
 
         # update Action objects
         elif dr_rec_type_is_action(dr_rec_type):
-            dump_ctx.rule.add_action(dr_obj)
+            if dump_ctx.rule:
+                dump_ctx.rule.add_action(dr_obj)
             if dr_rec_type in [DR_DUMP_REC_TYPE_ACTION_ENCAP_L2,
                                DR_DUMP_REC_TYPE_ACTION_ENCAP_L3,
                                DR_DUMP_REC_TYPE_ACTION_CTR,
@@ -196,9 +199,17 @@ def parse_domain(csv_reader, domain_obj=None):
                dr_obj.add_dump_ctx(dump_ctx)
 
         # update Rule objects
-        elif dr_rec_type == DR_DUMP_REC_TYPE_RULE:
-            dump_ctx.rule = dr_obj
-            dump_ctx.matcher.add_rule(dr_obj)
+        elif dr_rec_type == DR_DUMP_REC_TYPE_RULE:            
+            if not ( dump_ctx.line  and 
+                line in dump_ctx.line and 
+                not any(str in line for str in dump_ctx.invalid_rule)
+            ):
+                dump_ctx.line.append(line)
+                dump_ctx.rule = dr_obj
+                dump_ctx.matcher.add_rule(dr_obj)
+                for str in dump_ctx.invalid_rule:
+                    if str in line :
+                        dump_ctx.invalid_rule.remove(str)
 
         # update Matcher objects
         elif dr_rec_type == DR_DUMP_REC_TYPE_MATCHER_BUILDER:

@@ -129,15 +129,33 @@ def trigger_dump(s_pid, s_port, path, s_flow_ptr):
     port = s_port
     server_pid = s_pid
     flow_ptr = s_flow_ptr
+    tmp_file_path = "/root/mlx_steering.csv"
 
+    if not os.path.exists(tmp_file_path):
+        os.mknod(tmp_file_path)
     try:
         dump_file = open(path, 'w')
     except IOError as msg:
         print("failed to open dump file: %s" % msg)
         sys.exit(1)
+    
+    i = 0
+    while i <= port:
+        try:
+            tmp_file = open(tmp_file_path, 'w')
+        except IOError as msg:
+            print("failed to open tmp_file: %s" % msg)
+            sys.exit(1)
 
-    sock = connect_to_server(server_pid)
-    request_dump(sock, port, dump_file, flow_ptr)
+        sock = connect_to_server(server_pid)
+        request_dump(sock, i, tmp_file, flow_ptr)
+        tmp_file.close()
+        tmp_file = open(tmp_file_path, 'r')
+        s = tmp_file.read()
+        w = dump_file.write(s)
+        tmp_file.close()
+        sock.close()
+        i += 1
+
     dump_file.close()
-    sock.close()
     return path
