@@ -49,7 +49,7 @@ class dr_dump_rule(dr_obj):
         self.rule_action_list = []
 
     def dump_str(self):
-        return "ufid %s\n" % (_srd(self.data, "id"))
+        return "ufid: %s\n" % (_srd(self.data, "id"))
 
     def dump_match_str(self, verbose, raw):
         MATCH = "key: "
@@ -76,10 +76,11 @@ class dr_dump_rule(dr_obj):
         for i in range(0, len(self.rule_action_list)):
             action = self.rule_action_list[i]
             if (
-                "ctr_index" in action.data and  
+                "rule_id" in action.data and
                 _srd(self.data, "id") != _srd(action.data, "rule_id")
             ):
                 break
+
             if ( not len(action.dump_str())):
                 return ""
             action_str += action.dump_str()

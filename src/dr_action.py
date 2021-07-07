@@ -195,18 +195,25 @@ class dr_dump_action_encap_l2(dr_obj):
 
     def dump_str(self):
         _str = _srd(self.data, "rule_id")
-        if len(_str) >= 9 :
-            str = _str[0:2] + _str[len(_str)-7:len(_str)]
+        found = False
+        for _key in self.dump_ctx.encap_decap.keys():
+            if len(_str) >= len(_key):
+                str = _str[0:2] + _str[2+len(_str)-len(_key):len(_str)]
+                if str == _key:
+                    out_str = self.dump_ctx.encap_decap[_key]
+                    found = True
+                    break
+            elif len(_str) < len(_key):
+                key = _key[0:2] + _key[2+len(_key)-len(_str):len(_key)]
+                if key == _str:
+                    out_str = self.dump_ctx.encap_decap[_key]
+                    found = True
+                    break
+        if not found:   
+            self.dump_ctx.invalid_rule.append(_str)
+            return ""   
         else:
-            str =_str
-        if ( str in self.dump_ctx.encap_decap.keys()):
-           out_str = self.dump_ctx.encap_decap[str]
-        else:
-           out_str = "parse vxlan en/decap error!"
-           self.dump_ctx.invalid_rule.append(str)
-           return ""
-        return "ENCAP(%s), index %s" % (out_str, _srd(self.data, "devx_obj_id"))
-
+            return "ENCAP(%s), index %s" % (out_str, _srd(self.data, "devx_obj_id"))
 
 class dr_dump_action_encap_l3(dr_obj):
     def __init__(self, data):

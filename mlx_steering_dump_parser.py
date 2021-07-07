@@ -199,7 +199,7 @@ def parse_domain(csv_reader, domain_obj=None):
                dr_obj.add_dump_ctx(dump_ctx)
 
         # update Rule objects
-        elif dr_rec_type == DR_DUMP_REC_TYPE_RULE:            
+        elif dr_rec_type == DR_DUMP_REC_TYPE_RULE:   
             if not ( dump_ctx.line  and 
                 line in dump_ctx.line and 
                 not any(str in line for str in dump_ctx.invalid_rule)
